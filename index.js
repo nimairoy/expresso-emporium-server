@@ -10,8 +10,8 @@ app.use(cors());
 app.use(express.json());
 
 // testing server is working or not
-app.get('/', (req, res)=>{
-    res.send('Server is Working');
+app.get('/', (req, res) => {
+  res.send('Server is Working');
 });
 
 
@@ -34,29 +34,59 @@ async function run() {
     const coffeeCollection = client.db('expressoDB').collection('coffee');
 
 
+    // get specific coffee card
+    app.get('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+      res.send(result)
+    })
+
     //get or read all the coffee
-    app.get('/coffees', async(req, res)=>{
-        const cursor = coffeeCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+    app.get('/coffees', async (req, res) => {
+      const cursor = coffeeCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     })
 
     // add or post a new coffee
-    app.post('/coffees', async(req, res)=> {
-        const newCoffee = req.body;
-        console.log(newCoffee);
-        const result = await coffeeCollection.insertOne(newCoffee);
-        res.send(result);
+    app.post('/coffees', async (req, res) => {
+      const newCoffee = req.body;
+      console.log(newCoffee);
+      const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
     })
 
+    //updated coffee or put method
+    app.put('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          quantity: updatedCoffee.name,
+          supplier: updatedCoffee.name,
+          category: updatedCoffee.name,
+          details: updatedCoffee.name,
+          taste: updatedCoffee.name,
+          photo: updatedCoffee.name
+        }
+      }
+      const result = await coffeeCollection.updateOne(filter, coffee, options)
+      res.send(result);
+    })
 
     //delete coffee card
-    app.delete('/coffees/:id', async(req, res)=>{
-        const id = req.params.id;
-        console.log(id);
-        const query = { _id: new ObjectId(id)};
-        const result = await coffeeCollection.deleteOne(query);
-        res.send(result);
+    app.delete('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.deleteOne(query);
+      res.send(result);
     })
 
 
@@ -76,6 +106,6 @@ run().catch(console.dir);
 
 
 // which port server is working
-app.listen(port, ()=>{
-    console.log(`Server is working on PORT: ${port}`);
+app.listen(port, () => {
+  console.log(`Server is working on PORT: ${port}`);
 });
